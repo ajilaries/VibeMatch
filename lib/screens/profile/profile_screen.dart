@@ -7,14 +7,42 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-      ),
+      appBar: AppBar(title: const Text("My Profile")),
 
-      body: const Center(
-        child: Text(
-          "Your Profile 👤",
-          style: TextStyle(fontSize: 22),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+
+        child: Column(
+          children: [
+
+            const CircleAvatar(
+              radius: 50,
+              child: Icon(Icons.person, size: 50),
+            ),
+
+            const SizedBox(height: 20),
+
+            TextField(
+              decoration: const InputDecoration(
+                labelText: "Name",
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            TextField(
+              decoration: const InputDecoration(
+                labelText: "Bio",
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("Save Profile"),
+            )
+          ],
         ),
       ),
     );
