@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vibematch/screens/home/home_screen.dart';
+import '../../features/navigation/main_navigation.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -23,7 +23,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  MaterialPageRoute(builder: (context) => const MainNavigation()),
                 );
               },
               child: const Text("Login"),
