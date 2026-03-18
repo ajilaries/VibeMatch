@@ -1,68 +1,39 @@
 import 'package:flutter/material.dart';
-import '../chat/chat_screen.dart';
-import '../game/vibe_game.dart';
-import '../profile/profile_screen.dart';
-import 'discover_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-
-  int currentIndex = 0;
-
-  final List<Widget> screens = const [
-    DiscoverScreen(),
-    VibeGame(),
-    ChatScreen(),
-    ProfileScreen(),
+  final List<Map<String, String>> matches = const [
+    {"name": "Emma", "message": "Hey 👋"},
+    {"name": "Liam", "message": "Let’s play the vibe game"},
+    {"name": "Sophia", "message": "How are you?"},
   ];
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
+      appBar: AppBar(title: const Text("VibeMatch"), centerTitle: true),
+      body: ListView.builder(
+        itemCount: matches.length,
+        itemBuilder: (context, index) {
+          final user = matches[index];
 
-      body: screens[currentIndex],
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
+          return Card(
+            margin: const EdgeInsets.all(10),
+            child: ListTile(
+              leading: const CircleAvatar(
+                radius: 24,
+                child: Icon(Icons.person),
+              ),
+              title: Text(user["name"]!),
+              subtitle: Text(user["message"]!),
+              trailing: const Icon(Icons.favorite, color: Colors.red),
+              onTap: () {
+                Navigator.pushNamed(context, "/chat");
+              },
+            ),
+          );
         },
-
-        type: BottomNavigationBarType.fixed,
-
-        items: const [
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: "Discover",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.videogame_asset),
-            label: "Game",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: "Chat",
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-
-        ],
       ),
     );
   }
