@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
+import 'matches_screen.dart';
+import 'chats_screen.dart';
+import 'requests_screen.dart';
 
-class MessagesScreen extends StatelessWidget {
-  const MessagesScreen({super.key});
+class MessageScreen extends StatelessWidget {
+  const MessageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Messages"),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: "Matches"),
+              Tab(text: "Chats"),
+              Tab(text: "Requests"),
+            ],
+          ),
+        ),
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Messages"),
-      ),
-
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-
-          return ListTile(
-            leading: const CircleAvatar(
-              child: Icon(Icons.person),
-            ),
-
-            title: Text("User $index"),
-
-            subtitle: const Text("Tap to chat"),
-
-            onTap: () {
-              Navigator.pushNamed(context, "/chat");
-            },
-          );
-        },
+        body: const TabBarView(
+          children: [MatchesScreen(), ChatsScreen(), RequestsScreen()],
+        ),
       ),
     );
   }
