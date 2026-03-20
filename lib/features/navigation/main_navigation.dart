@@ -17,7 +17,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> screens = [
     DiscoverScreen(),
     HomeScreen(),
-    MessagesScreen(),
+    MessageScreen(),
     ProfileScreen(),
     SettingsScreen(),
   ];
