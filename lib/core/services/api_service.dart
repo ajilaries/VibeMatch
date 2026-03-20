@@ -90,4 +90,23 @@ class ApiService {
       throw Exception("failed to load users");
     }
   }
+  static Future likeUser(String token, int userId) async {
+
+  final response = await http.post(
+    Uri.parse('$baseUrl/api/like'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    },
+    body: jsonEncode({
+      "liked_user_id": userId
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception("Failed to like user");
+  }
+}
 }
