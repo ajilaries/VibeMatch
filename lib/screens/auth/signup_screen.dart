@@ -1,81 +1,96 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/colors.dart';
-import '../../core/theme/text_styles.dart';
+import 'package:vibematch/core/services/api_service.dart';
+import '../../features/navigation/main_navigation.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  // 1️⃣ Controllers for input fields
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false; // For showing loading indicator
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  // 2️⃣ Function to handle signup
+  Future<void> handleSignup() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var result = await ApiService.signup(
+        nameController.text.trim(),
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+
+      print('Signup success: $result');
+
+      // TODO: Save token locally if backend returns it
+      // Navigate to Home Screen after signup
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+      );
+    } catch (e) {
+      print('Error: $e');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signup failed: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
+      appBar: AppBar(title: const Text("Signup")),
       body: Padding(
-        padding: const EdgeInsets.all(24),
-
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-
-            Text(
-              "Create Account",
-              style: AppTextStyles.heading,
-            ),
-
-            const SizedBox(height: 40),
-
             TextField(
-              decoration: InputDecoration(
-                hintText: "Full Name",
-                filled: true,
-                fillColor: AppColors.card,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Name"),
             ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 15),
             TextField(
-              decoration: InputDecoration(
-                hintText: "Email",
-                filled: true,
-                fillColor: AppColors.card,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+              controller: emailController,
+              decoration: const InputDecoration(labelText: "Email"),
             ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 15),
             TextField(
+              controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
-                hintText: "Password",
-                filled: true,
-                fillColor: AppColors.card,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+              decoration: const InputDecoration(labelText: "Password"),
             ),
-
             const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-
-              child: ElevatedButton(
-                onPressed: () {},
-
-                child: const Text("Sign Up"),
-              ),
-            )
-
+            ElevatedButton(
+              onPressed: isLoading ? null : handleSignup,
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text("Signup"),
+            ),
           ],
         ),
       ),
