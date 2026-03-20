@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../core/services/api_service.dart';
+import '../../core/utils/token_storage.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -8,64 +10,84 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
+  List users = [];
+  bool isLoading = true;
 
-  String question = "Choose quickly";
+  @override
+  void initState() {
+    super.initState();
+    loadUsers();
+  }
 
-  String option1 = "Pizza 🍕";
-  String option2 = "Burger 🍔";
+  Future<void> loadUsers() async {
+    try {
+      String? token = await TokenStorage.getToken();
 
-  String? selected;
+      if (token == null) return;
 
-  void selectAnswer(String answer) {
-    setState(() {
-      selected = answer;
-    });
+      var data = await ApiService.discoverUsers(token);
 
-    Future.delayed(const Duration(seconds: 1), () {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Answer saved!")),
-      );
-    });
+      setState(() {
+        users = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Discover error: $e");
+
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (users.isEmpty) {
+      return const Center(child: Text("No users found"));
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text("Discover")),
+      body: ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          var user = users[index];
 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          return Card(
+            margin: const EdgeInsets.all(12),
+            child: ListTile(
+              title: Text(user["name"]),
 
-          children: [
+              subtitle: Text(user["bio"] ?? ""),
 
-            Text(
-              question,
-              style: const TextStyle(fontSize: 22),
+              trailing: IconButton(
+                icon: const Icon(Icons.favorite, color: Colors.red),
+
+                onPressed: () async {
+                  try {
+                    String? token = await TokenStorage.getToken();
+
+                    if (token == null) return;
+
+                    var result = await ApiService.likeUser(token, user["id"]);
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(result["message"])));
+                  } catch (e) {
+                    print("like error:$e");
+                  }
+                },
+              ),
             ),
-
-            const SizedBox(height: 40),
-
-            ElevatedButton(
-              onPressed: () => selectAnswer(option1),
-              child: Text(option1),
-            ),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: () => selectAnswer(option2),
-              child: Text(option2),
-            ),
-
-            const SizedBox(height: 30),
-
-            if (selected != null)
-              Text("You chose: $selected"),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
+
+///initState() loads the users when screen opens
