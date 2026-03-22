@@ -39,6 +39,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       print('Login success: $result');
 
+      String? token = result["access_token"] ?? result["token"];
+
+      if (token == null) {
+        throw Exception("token missing in API response");
+      }
+
+      await TokenStorage.saveToken(result["access_token"]);
+
       // TODO: Save token locally using SharedPreferences or Hive
       // Navigate to Home Screen
       Navigator.pushReplacement(
