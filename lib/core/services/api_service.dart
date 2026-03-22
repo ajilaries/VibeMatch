@@ -79,17 +79,26 @@ class ApiService {
     }
   }
 
-  static Future<List<dynamic>> discoverUsers(String token) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/discover'),
-      headers: {'Authorization': 'Bearer$token'},
-    );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("failed to load users");
-    }
-  }
+  // static Future<List<dynamic>> discoverUsers(String token) async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/api/discover'),
+  //     headers: {'Authorization': 'Bearer$token'},
+  //   );
+  //   if (response.statusCode == 200) {
+  //     return jsonDecode(response.body);
+  //   } else {
+  //     throw Exception("failed to load users");
+  //   }
+  // }
+
+static Future<List<dynamic>> getDiscoverUsers() async {
+
+  final response = await http.get(
+    Uri.parse("http://127.0.0.1:8000/api/discover")
+  );
+
+  return jsonDecode(response.body);
+}
   static Future likeUser(String token, int userId) async {
 
   final response = await http.post(
