@@ -11,7 +11,7 @@ class ApiService {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/login'), // your login endpoint
+      Uri.parse('$baseUrl/login'), // your login endpoint
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -30,7 +30,7 @@ class ApiService {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/signup'), // your signup endpoint
+      Uri.parse('$baseUrl/signup'), // your signup endpoint
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'name': name, 'email': email, 'password': password}),
     );
