@@ -38,7 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (pickedDate != null) {
       dobController.text =
-          "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+    "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
     }
   }
 
