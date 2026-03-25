@@ -3,22 +3,28 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Replace with your backend URL
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://192.168.112.189:8000';
 
   // Login
-  static Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  ) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/api/login"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
-    );
-    print(response.body);
-    return jsonDecode(response.body);
-  }
+static Future<Map<String, dynamic>> login(
+  String email,
+  String password,
+) async {
+  final response = await http.post(
+    Uri.parse("$baseUrl/api/login"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"email": email, "password": password}),
+  );
 
+  final data = jsonDecode(response.body);
+  print("LOGIN RESPONSE: $data");
+
+  if (response.statusCode == 200) {
+    return data;
+  } else {
+    throw Exception(data["detail"] ?? "Login failed");
+  }
+}
   // Signup
   static Future<Map<String, dynamic>> signup(
     String username,
