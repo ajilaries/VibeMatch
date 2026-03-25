@@ -40,7 +40,8 @@ class _MainNavigationState extends State<MainNavigation> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.chat),label:"Chat" ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "profile"),
           BottomNavigationBarItem(icon: Icon(Icons.settings),label: "Settings",
           ),
         ],
