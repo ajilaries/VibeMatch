@@ -3,43 +3,46 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Replace with your backend URL
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://192.168.112.189:8000';
 
   // Login
-  static Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  ) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/login'), // your login endpoint
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+static Future<Map<String, dynamic>> login(
+  String email,
+  String password,
+) async {
+  final response = await http.post(
+    Uri.parse("$baseUrl/api/login"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"email": email, "password": password}),
+  );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Login failed: ${response.body}');
-    }
+  final data = jsonDecode(response.body);
+  print("LOGIN RESPONSE: $data");
+
+  if (response.statusCode == 200) {
+    return data;
+  } else {
+    throw Exception(data["detail"] ?? "Login failed");
   }
-
+}
   // Signup
   static Future<Map<String, dynamic>> signup(
-    String name,
+    String username,
     String email,
     String password,
+    String dob,
   ) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/signup'), // your signup endpoint
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name, 'email': email, 'password': password}),
+      Uri.parse("$baseUrl/api/signup"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "username": username,
+        "email": email,
+        "password": password,
+        "dob": dob,
+      }),
     );
-
-    if (response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Signup failed: ${response.body}');
-    }
+    return jsonDecode(response.body);
   }
 
   // Example: Get user profile
@@ -82,12 +85,33 @@ class ApiService {
   static Future<List<dynamic>> discoverUsers(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/api/discover'),
-      headers: {'Authorization': 'Bearer$token'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
     );
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception("failed to load users");
+      throw Exception("Failed to load users");
+    }
+  }
+
+  static Future likeUser(String token, int userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/like'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({"liked_user_id": userId}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Failed to like user");
     }
   }
 }

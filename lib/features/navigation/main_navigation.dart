@@ -15,35 +15,34 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
   final List<Widget> screens = [
-    DiscoverScreen(),
     HomeScreen(),
-    MessagesScreen(),
+    DiscoverScreen(),
+    MessageScreen(),
     ProfileScreen(),
     SettingsScreen(),
   ];
 
+  void onTabTapped(int index) {
+    setState(() {
+      currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[currentIndex],
-
+      body: IndexedStack(index: currentIndex, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
+        onTap: onTabTapped,
         type: BottomNavigationBarType.fixed,
 
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
+          BottomNavigationBarItem(icon: Icon(Icons.chat),label:"Chat" ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings),label: "Settings",
           ),
         ],
       ),
