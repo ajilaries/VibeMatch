@@ -1,30 +1,32 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   // Replace with your backend URL
-  static const String baseUrl = 'http://192.168.112.189:8000';
+  static const String baseUrl = 'http://192.168.62.189:8000';
 
   // Login
-static Future<Map<String, dynamic>> login(
-  String email,
-  String password,
-) async {
-  final response = await http.post(
-    Uri.parse("$baseUrl/api/login"),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({"email": email, "password": password}),
-  );
+  static Future<Map<String, dynamic>> login(
+    String email,
+    String password,
+  ) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/api/login"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "password": password}),
+    );
 
-  final data = jsonDecode(response.body);
-  print("LOGIN RESPONSE: $data");
+    final data = jsonDecode(response.body);
+    print("LOGIN RESPONSE: $data");
 
-  if (response.statusCode == 200) {
-    return data;
-  } else {
-    throw Exception(data["detail"] ?? "Login failed");
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      throw Exception(data["detail"] ?? "Login failed");
+    }
   }
-}
+
   // Signup
   static Future<Map<String, dynamic>> signup(
     String username,
@@ -114,4 +116,37 @@ static Future<Map<String, dynamic>> login(
       throw Exception("Failed to like user");
     }
   }
+
+  static Future<void> uploadProfileMedia(
+    String token,
+    File file,
+    String type,
+  ) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/profile/upload'),
+    );
+
+    request.headers['Authorization'] = 'Bearer$token';
+    request.fields['type'] = type;
+
+    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+    var response = await request.send();
+
+    if (response.statusCode != 200) {
+      throw Exception("Upload failed");
+    }
+  }
+  static Future<void> removeProfileMedia(String token) async {
+  final response = await http.delete(
+    Uri.parse('$baseUrl/profile/media'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception("Remove failed");
+  }
+}
 }
