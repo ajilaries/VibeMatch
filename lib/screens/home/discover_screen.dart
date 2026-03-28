@@ -25,7 +25,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
       if (token == null) return;
 
-      var data = await ApiService.getDiscoverUsers();
+      var data = await ApiService.discoverUsers(token);
 
       setState(() {
         users = data;
