@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vibematch/widgets/custom_appbar.dart'; // 👈 import this
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,77 +18,27 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            /// 🔥 Custom Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "VibeMatch",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_none),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
+            /// 🔥 Global AppBar
+            const CustomAppBar(title: "VibeMatch"),
 
-            /// 🔍 Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: "Search vibes...",
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.grey.shade200,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            /// 🔥 Match List
+            /// 🔥 Your existing list
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 100),
+                padding: const EdgeInsets.only(bottom: 100), // 👈 important
                 itemCount: matches.length,
                 itemBuilder: (context, index) {
                   final user = matches[index];
 
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  return Card(
+                    margin: const EdgeInsets.all(10),
                     child: ListTile(
                       leading: const CircleAvatar(
                         radius: 24,
                         child: Icon(Icons.person),
                       ),
-                      title: Text(
-                        user["name"]!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      title: Text(user["name"]!),
                       subtitle: Text(user["message"]!),
-                      trailing: const Icon(Icons.favorite,
-                          color: Colors.pink),
-
+                      trailing: const Icon(Icons.favorite, color: Colors.red),
                       onTap: () {
                         Navigator.pushNamed(context, "/chat");
                       },
