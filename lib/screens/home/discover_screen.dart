@@ -60,9 +60,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           return Card(
             margin: const EdgeInsets.all(12),
             child: ListTile(
-              title: Text(user["name"]),
+              title: Text(user["username"]??"unknown"),
 
-              subtitle: Text(user["bio"] ?? ""),
+              subtitle: Text(user["bio"] ?? "No bio yet"),
 
               trailing: IconButton(
                 icon: const Icon(Icons.favorite, color: Colors.red),

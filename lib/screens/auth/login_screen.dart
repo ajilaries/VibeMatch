@@ -25,41 +25,44 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // 2️⃣ Function to handle login
+
   Future<void> handleLogin() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter email and password")),
+      );
+      return;
+    }
     setState(() {
       isLoading = true;
     });
-
     try {
       var result = await ApiService.login(
         emailController.text.trim(),
         passwordController.text.trim(),
       );
-      await TokenStorage.saveToken(result["access_token"]);
-
-      print('Login success: $result');
-
-      String? token = result["access_token"] ?? result["token"];
+      String? token = result["access_token"];
 
       if (token == null) {
-        throw Exception("token missing in API response");
+        throw Exception("Login failed. Token not received");
       }
 
-      await TokenStorage.saveToken(result["access_token"]);
+      //save token locally
 
-      // TODO: Save token locally using SharedPreferences or Hive
-      // Navigate to Home Screen
+      await TokenStorage.saveToken(token);
+
+      print("Token saved:$token");
+
+      //navigate to main navigation
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
     } catch (e) {
-      print('Error: $e');
-
-      // Show error as a SnackBar
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Login failed: $e')));
+      ).showSnackBar(SnackBar(content: Text("Login failed $e")));
     } finally {
       setState(() {
         isLoading = false;
