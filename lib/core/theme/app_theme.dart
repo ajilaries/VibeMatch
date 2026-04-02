@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'colors.dart';
 
 class AppTheme {
-  static ThemeData darkTheme = ThemeData(
-    scaffoldBackgroundColor: AppColors.background,
-    fontFamily: 'Poppins',
+  static final lightTheme = ThemeData(
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: Colors.white,
+    primaryColor: Colors.pink,
+  );
+
+  static final darkTheme = ThemeData(
     brightness: Brightness.dark,
+    scaffoldBackgroundColor: Colors.black,
+    primaryColor: Colors.pink,
   );
 }

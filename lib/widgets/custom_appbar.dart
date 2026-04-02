@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/theme/theme_provider.dart';
 
-class CustomAppBar extends StatelessWidget {
+class CustomAppBar extends ConsumerWidget {
   final String title;
   final bool showMenu;
 
@@ -11,7 +13,7 @@ class CustomAppBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -32,7 +34,7 @@ class CustomAppBar extends StatelessWidget {
               icon: const Icon(Icons.more_vert),
               onSelected: (value) {
                 if (value == "dark") {
-                  // later connect Riverpod
+                  ref.read(themeProvider.notifier).toggleTheme();
                 }
               },
               itemBuilder: (context) => const [
