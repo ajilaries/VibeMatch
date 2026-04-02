@@ -31,20 +31,63 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: currentIndex, children: screens),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: onTabTapped,
-        type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
 
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Discover"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat),label:"Chat" ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "profile"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings),label: "Settings",
+      body: Stack(
+        children: [
+          //keeps state of all screens
+          IndexedStack(index: currentIndex, children: screens),
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: _buildFloatingNavBar(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingNavBar() {
+    return Container(
+      height: 65,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _navItem(Icons.home, 0),
+          _navItem(Icons.explore, 1),
+          _navItem(Icons.chat, 2),
+          _navItem(Icons.person, 3),
+          _navItem(Icons.settings, 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _navItem(IconData icon, int index) {
+    final isSelected = currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => onTabTapped(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.pink : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white),
       ),
     );
   }
