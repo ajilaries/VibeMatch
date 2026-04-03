@@ -4,6 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/services/api_service.dart';
 import '../../core/utils/token_storage.dart';
 import '../../screens/profile/edit_profile_screen.dart';
+import 'package:vibematch/core/utils/snap_storage.dart';
+import 'package:vibematch/screens/snap/story_viewer_screen.dart';
+import 'package:vibematch/features/snap/snap_preview_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -146,6 +149,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
     loadProfile();
   }
 
+  Future<void> pickSnap() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SnapPreviewScreen(imageFile: File(image.path)),
+      ),
+    );
+  }
+
+Widget buildMyStorySection() {
+  final snaps = SnapStorage.getSnaps();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "My Story",
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+
+      const SizedBox(height: 10),
+
+      Row(
+        children: [
+          /// ➕ Add Snap
+          GestureDetector(
+            onTap: pickSnap,
+            child: Column(
+              children: [
+                Container(
+                  height: 70,
+                  width: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.pink, width: 3),
+                  ),
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(height: 5),
+                const Text("Add"),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 15),
+
+          /// 👻 Snap List
+          Expanded(
+            child: SizedBox(
+              height: 90,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: snaps.length,
+                itemBuilder: (context, index) {
+                  final snap = snaps[index];
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StoryViewerScreen(
+                            snaps: snaps,
+                            initialIndex: index,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 10),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundImage:
+                            FileImage(File(snap.imagePath)),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
