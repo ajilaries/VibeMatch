@@ -137,16 +137,31 @@ class ApiService {
       throw Exception("Upload failed");
     }
   }
-  static Future<void> removeProfileMedia(String token) async {
-  final response = await http.delete(
-    Uri.parse('$baseUrl/profile/media'),
-    headers: {
-      'Authorization': 'Bearer $token',
-    },
-  );
 
-  if (response.statusCode != 200) {
-    throw Exception("Remove failed");
+  static Future<void> removeProfileMedia(String token) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/profile/media'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Remove failed");
+    }
   }
-}
+
+  static Future<void> markSnapViewed({
+    required String snapId,
+    required String token,
+  }) async {
+    final response = await http.post(
+      Uri.parse("&baseUrl/snaps/view/$snapId"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Failed to mark snap as viewed");
+    }
+  }
 }
