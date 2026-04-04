@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../../models/snap_model.dart';
+import '../../core/services/api_service.dart';
+import '../../core/utils/token_storage.dart';
 
 class StoryViewerScreen extends StatefulWidget {
   final List<SnapModel> snaps;
@@ -21,14 +23,35 @@ class StoryViewerScreen extends StatefulWidget {
 class _StoryViewerScreenState extends State<StoryViewerScreen> {
   late int currentIndex;
   Timer? timer;
-
   VideoPlayerController? videoController;
+
+  // ✅ prevent duplicate view calls
+  final Set<String> viewedSnapIds = {};
 
   @override
   void initState() {
     super.initState();
     currentIndex = widget.initialIndex;
-    loadSnap(); // 🔥 IMPORTANT
+    loadSnap();
+  }
+
+  // 👀 MARK AS VIEWED
+  void markAsViewed() async {
+    final snapId = widget.snaps[currentIndex].id;
+
+    // جلوگیری duplicate calls
+    if (viewedSnapIds.contains(snapId)) return;
+
+    viewedSnapIds.add(snapId);
+
+    try {
+      final token = await TokenStorage.getToken();
+      if (token == null) return;
+
+      await ApiService.markSnapViewed(snapId: snapId, token: token);
+    } catch (e) {
+      debugPrint("View tracking error: $e");
+    }
   }
 
   void loadSnap() {
@@ -37,21 +60,25 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
 
     final snap = widget.snaps[currentIndex];
 
+    // 👀 track view
+    markAsViewed();
+
     if (snap.type == "video") {
       videoController = VideoPlayerController.file(File(snap.imagePath))
         ..initialize().then((_) {
+          if (!mounted) return;
+
           setState(() {});
           videoController!.play();
 
-          // ⏱️ Auto next after video ends
           timer = Timer(videoController!.value.duration, nextSnap);
         });
     } else {
-      // ⏱️ Image auto next (5 sec)
-      timer = Timer(const Duration(seconds: 5), nextSnap);
+      // ⏱️ dynamic duration
+      timer = Timer(Duration(seconds: snap.viewDuration), nextSnap);
     }
 
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void nextSnap() {
@@ -59,9 +86,9 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
       setState(() {
         currentIndex++;
       });
-      loadSnap(); // 🔥 reload
+      loadSnap();
     } else {
-      Navigator.pop(context); // ❌ auto close
+      Navigator.pop(context);
     }
   }
 
@@ -70,7 +97,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
       setState(() {
         currentIndex--;
       });
-      loadSnap(); // 🔥 reload
+      loadSnap();
     }
   }
 
@@ -81,6 +108,57 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
     super.dispose();
   }
 
+void openReplySheet() {
+  TextEditingController controller = TextEditingController();
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.black,
+    isScrollControlled: true,
+    builder: (_) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 10,
+          right: 10,
+          top: 10,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: "Type your reply...",
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.send, color: Colors.white),
+              onPressed: () {
+                if (controller.text.trim().isNotEmpty) {
+                  sendReply(controller.text.trim());
+                  Navigator.pop(context);
+                }
+              },
+            )
+          ],
+        ),
+      );
+    },
+  );
+}
+void sendReply(String message) {
+  final snap = widget.snaps[currentIndex];
+
+  // For now just print (frontend stage)
+  print("Reply to ${snap.username}: $message");
+
+  // Later we send this to chat screen
+}
   @override
   Widget build(BuildContext context) {
     final snap = widget.snaps[currentIndex];
@@ -103,13 +181,12 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
             Center(
               child: snap.type == "video"
                   ? (videoController != null &&
-                          videoController!.value.isInitialized)
-                      ? AspectRatio(
-                          aspectRatio:
-                              videoController!.value.aspectRatio,
-                          child: VideoPlayer(videoController!),
-                        )
-                      : const CircularProgressIndicator()
+                            videoController!.value.isInitialized)
+                        ? AspectRatio(
+                            aspectRatio: videoController!.value.aspectRatio,
+                            child: VideoPlayer(videoController!),
+                          )
+                        : const CircularProgressIndicator()
                   : Image.file(
                       File(snap.imagePath),
                       fit: BoxFit.cover,
@@ -155,6 +232,30 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
               child: Text(
                 snap.username,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+            Positioned(
+              bottom: 30,
+              left: 10,
+              right: 10,
+              child: GestureDetector(
+                onTap: () {
+                  openReplySheet();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: const Text(
+                    "Send a reply",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
               ),
             ),
           ],
