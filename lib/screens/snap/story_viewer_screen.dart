@@ -20,7 +20,9 @@ class StoryViewerScreen extends StatefulWidget {
   State<StoryViewerScreen> createState() => _StoryViewerScreenState();
 }
 
-class _StoryViewerScreenState extends State<StoryViewerScreen> {
+class _StoryViewerScreenState extends State<StoryViewerScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController progressController;
   late int currentIndex;
   Timer? timer;
   VideoPlayerController? videoController;
@@ -31,6 +33,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
   @override
   void initState() {
     super.initState();
+    progressController = AnimationController(vsync: this);
     currentIndex = widget.initialIndex;
     loadSnap();
   }
@@ -39,7 +42,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
   void markAsViewed() async {
     final snapId = widget.snaps[currentIndex].id;
 
-    // جلوگیری duplicate calls
+    // duplicate calls
     if (viewedSnapIds.contains(snapId)) return;
 
     viewedSnapIds.add(snapId);
@@ -57,11 +60,10 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
   void loadSnap() {
     timer?.cancel();
     videoController?.dispose();
+    progressController.stop();
+    progressController.reset();
 
     final snap = widget.snaps[currentIndex];
-
-    // 👀 track view
-    markAsViewed();
 
     if (snap.type == "video") {
       videoController = VideoPlayerController.file(File(snap.imagePath))
@@ -71,17 +73,50 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
           setState(() {});
           videoController!.play();
 
-          timer = Timer(videoController!.value.duration, nextSnap);
+          final duration = videoController!.value.duration;
+
+          progressController.duration = duration;
+          progressController.forward();
+
+          timer = Timer(duration, nextSnap);
         });
     } else {
-      // ⏱️ dynamic duration
-      timer = Timer(Duration(seconds: snap.viewDuration), nextSnap);
+      final duration = Duration(seconds: snap.viewDuration);
+
+      progressController.duration = duration;
+      progressController.forward();
+
+      timer = Timer(duration, nextSnap);
     }
 
     if (mounted) setState(() {});
+
+    void simulateViews() {
+      final snap = widget.snaps[currentIndex];
+
+      // Only simulate for your own snaps
+      if (snap.username != "You") return;
+
+      // Avoid duplicate simulation
+      if (snap.viewedBy.isNotEmpty) return;
+
+      // Fake viewers
+      snap.viewedBy.addAll([
+        {"username": "Rahul", "time": "2m ago"},
+        {"username": "Anu", "time": "5m ago"},
+        {"username": "Kiran", "time": "10m ago"},
+      ]);
+    }
+
+    simulateViews();
   }
 
   void nextSnap() {
+    final snap = widget.snaps[currentIndex];
+
+    // 🔥 mark as opened
+    snap.isOpened = true;
+
     if (currentIndex < widget.snaps.length - 1) {
       setState(() {
         currentIndex++;
@@ -105,60 +140,63 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
   void dispose() {
     timer?.cancel();
     videoController?.dispose();
+    progressController.dispose();
     super.dispose();
   }
 
-void openReplySheet() {
-  TextEditingController controller = TextEditingController();
+  void openReplySheet() {
+    TextEditingController controller = TextEditingController();
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.black,
-    isScrollControlled: true,
-    builder: (_) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 10,
-          right: 10,
-          top: 10,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: "Type your reply...",
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: InputBorder.none,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 10,
+            right: 10,
+            top: 10,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: "Type your reply...",
+                    hintStyle: TextStyle(color: Colors.white54),
+                    border: InputBorder.none,
+                  ),
                 ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: () {
-                if (controller.text.trim().isNotEmpty) {
-                  sendReply(controller.text.trim());
-                  Navigator.pop(context);
-                }
-              },
-            )
-          ],
-        ),
-      );
-    },
-  );
-}
-void sendReply(String message) {
-  final snap = widget.snaps[currentIndex];
+              IconButton(
+                icon: const Icon(Icons.send, color: Colors.white),
+                onPressed: () {
+                  if (controller.text.trim().isNotEmpty) {
+                    sendReply(controller.text.trim());
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-  // For now just print (frontend stage)
-  print("Reply to ${snap.username}: $message");
+  void sendReply(String message) {
+    final snap = widget.snaps[currentIndex];
 
-  // Later we send this to chat screen
-}
+    // For now just print (frontend stage)
+    print("Reply to ${snap.username}: $message");
+
+    // Later we send this to chat screen
+  }
+
   @override
   Widget build(BuildContext context) {
     final snap = widget.snaps[currentIndex];
@@ -206,9 +244,25 @@ void sendReply(String message) {
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       height: 3,
-                      color: index <= currentIndex
-                          ? Colors.white
-                          : Colors.white38,
+                      child: Stack(
+                        children: [
+                          Container(color: Colors.white38),
+
+                          if (index < currentIndex)
+                            Container(color: Colors.white),
+
+                          if (index == currentIndex)
+                            AnimatedBuilder(
+                              animation: progressController,
+                              builder: (context, child) {
+                                return FractionallySizedBox(
+                                  widthFactor: progressController.value,
+                                  child: Container(color: Colors.white),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
                     ),
                   );
                 }),
