@@ -104,13 +104,14 @@ class SnapPreviewScreen extends StatelessWidget {
                 /// 👻 SAVE SNAP TO STORIES
                 SnapStorage.addSnap(
                   SnapModel(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
                     imagePath: imageFile.path,
                     username: "You",
                     timestamp: DateTime.now(),
                     type: getFileType(imageFile.path),
+                    viewDuration: 5, // 👈 since you added this in model
                   ),
                 );
-
                 /// ✅ Success UI
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
