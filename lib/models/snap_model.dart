@@ -3,13 +3,14 @@ class SnapModel {
   final String imagePath;
   final String username;
   final DateTime timestamp;
-  final String type; // image or video
+  final String type;
 
-  // ✅ ADD THIS
   final int viewDuration;
-
-  // ✅ (for later use - seen count)
   final List<dynamic> viewedBy;
+
+  // 🔥 NEW
+  bool isOpened;
+  bool canReplay;
 
   SnapModel({
     required this.id,
@@ -17,7 +18,9 @@ class SnapModel {
     required this.username,
     required this.timestamp,
     required this.type,
-    this.viewDuration = 5, // default 5 sec
+    this.viewDuration = 5,
     this.viewedBy = const [],
+    this.isOpened = false,
+    this.canReplay = true,
   });
 }
