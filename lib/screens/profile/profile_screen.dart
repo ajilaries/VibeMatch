@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../core/services/api_service.dart';
-import '../../core/utils/token_storage.dart';
-import '../../screens/profile/edit_profile_screen.dart';
+
+import 'package:vibematch/core/services/api_service.dart';
+import 'package:vibematch/core/utils/token_storage.dart';
 import 'package:vibematch/core/utils/snap_storage.dart';
+
+import 'package:vibematch/screens/profile/edit_profile_screen.dart';
 import 'package:vibematch/screens/snap/story_viewer_screen.dart';
+
+import 'package:vibematch/features/post/post_screen.dart';        // ✅
+import 'package:vibematch/features/snap/snap_inbox_screen.dart'; // ✅
 import 'package:vibematch/features/snap/snap_preview_screen.dart';
-import 'package:vibematch/features/post/post_screen.dart';
-import 'package:vibematch/features/snap/snap_inbox_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -81,8 +84,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("My Story",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          "My Story",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
 
         const SizedBox(height: 10),
 
@@ -190,78 +195,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : userData == null
-              ? const Center(child: Text("Failed to load profile"))
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
+          ? const Center(child: Text("Failed to load profile"))
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
 
-                      /// 👤 PROFILE IMAGE
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[300],
-                        backgroundImage:
-                            userData!["profile_type"] == "image" &&
-                                    userData!["profile_url"] != null
-                                ? NetworkImage(userData!["profile_url"])
-                                : null,
-                        child: userData!["profile_url"] == null
-                            ? const Icon(Icons.person, size: 50)
-                            : null,
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      /// 👤 NAME
-                      Text(
-                        userData!["name"] ?? "No Name",
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-
-                      /// 📝 BIO
-                      if (userData!["bio"] != null &&
-                          userData!["bio"] != "")
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            userData!["bio"],
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-
-                      /// ✏️ EDIT BUTTON
-                      ElevatedButton(
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  EditProfileScreen(userData: userData!),
-                            ),
-                          );
-                          loadProfile();
-                        },
-                        child: const Text("Edit profile"),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      /// 👻 STORY ROW
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: buildMyStorySection(),
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      /// 🔘 ACTION SECTION
-                      buildActionSection(),
-
-                      const SizedBox(height: 30),
-                    ],
+                  /// 👤 PROFILE IMAGE
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.grey[300],
+                    backgroundImage:
+                        userData!["profile_type"] == "image" &&
+                            userData!["profile_url"] != null
+                        ? NetworkImage(userData!["profile_url"])
+                        : null,
+                    child: userData!["profile_url"] == null
+                        ? const Icon(Icons.person, size: 50)
+                        : null,
                   ),
-                ),
+
+                  const SizedBox(height: 10),
+
+                  /// 👤 NAME
+                  Text(
+                    userData!["name"] ?? "No Name",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  /// 📝 BIO
+                  if (userData!["bio"] != null && userData!["bio"] != "")
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        userData!["bio"],
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                  /// ✏️ EDIT BUTTON
+                  ElevatedButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              EditProfileScreen(userData: userData!),
+                        ),
+                      );
+                      loadProfile();
+                    },
+                    child: const Text("Edit profile"),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// 👻 STORY ROW
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: buildMyStorySection(),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  /// 🔘 ACTION SECTION
+                  buildActionSection(),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
     );
   }
 }
