@@ -2,14 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class PostScreen extends StatefulWidget {
-  const PostScreen({super.key});
+class SnapInboxScreen extends StatefulWidget {
+  const SnapInboxScreen({super.key});
 
   @override
-  State<PostScreen> createState() => _PostScreenState();
+  State<SnapInboxScreen> createState() => _PostScreenState();
 }
 
-class _PostScreenState extends State<PostScreen> {
+class _PostScreenState extends State<SnapInboxScreen> {
   List<File> posts = [];
 
   /// 📸 PICK IMAGE
