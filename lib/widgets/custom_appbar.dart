@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/theme/theme_provider.dart';
+import '/core/providers/theme_provider.dart';
 
 class CustomAppBar extends ConsumerWidget {
   final String title;
@@ -14,6 +14,8 @@ class CustomAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -33,18 +35,45 @@ class CustomAppBar extends ConsumerWidget {
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               onSelected: (value) {
-                if (value == "dark") {
-                  ref.read(themeProvider.notifier).toggleTheme();
+                if (value == "toggle") {
+                  final isDark = themeState.mode == ThemeMode.dark;
+
+                  ref.read(themeProvider.notifier).setThemeMode(
+                        isDark ? ThemeMode.light : ThemeMode.dark,
+                      );
+                }
+
+                if (value == "pink") {
+                  ref.read(themeProvider.notifier)
+                      .setTheme(AppThemeType.pink);
+                }
+
+                if (value == "blue") {
+                  ref.read(themeProvider.notifier)
+                      .setTheme(AppThemeType.blue);
+                }
+
+                if (value == "purple") {
+                  ref.read(themeProvider.notifier)
+                      .setTheme(AppThemeType.purple);
                 }
               },
               itemBuilder: (context) => const [
                 PopupMenuItem(
-                  value: "dark",
+                  value: "toggle",
                   child: Text("Toggle Dark Mode"),
                 ),
                 PopupMenuItem(
-                  value: "saved",
-                  child: Text("Saved"),
+                  value: "pink",
+                  child: Text("Pink Theme"),
+                ),
+                PopupMenuItem(
+                  value: "blue",
+                  child: Text("Blue Theme"),
+                ),
+                PopupMenuItem(
+                  value: "purple",
+                  child: Text("Purple Theme"),
                 ),
               ],
             ),

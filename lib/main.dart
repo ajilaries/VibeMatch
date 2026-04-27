@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'core/theme/app_theme.dart';
-import 'core/theme/theme_provider.dart';
+import 'core/providers/theme_provider.dart';
 import 'screens/splash/splash_screen.dart';
 
 void main() {
@@ -14,18 +13,17 @@ class VibeMatchApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
+    final themeState = ref.watch(themeProvider);
 
     return MaterialApp(
-      title: "VibeMatch",
+      title: "Vibematch",
       debugShowCheckedModeBanner: false,
 
-      /// 🔥 Light + Dark Theme
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      //dynamic theme based on selected color
+      theme: AppTheme.getLightTheme(themeState.themeType),
+      darkTheme: AppTheme.getDarkTheme(themeState.themeType),
 
-      /// 🔥 Controlled by Riverpod
-      themeMode: themeMode,
+      themeMode: themeState.mode,
 
       home: const SplashScreen(),
     );
