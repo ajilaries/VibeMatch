@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Replace with your backend URL
-  // static const String baseUrl = 'http://192.168.67.189:8000';
+ static const String baseUrl = 'http://000.00.67.10:8000';
 
   // Login
   static Future<Map<String, dynamic>> login(
